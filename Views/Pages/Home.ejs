@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100%;
+    max-width: 1200px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+        }
+
+        header {
+            background: #4a90e2;
+            color: #ffffff;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        header .logo {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        header .nav-links {
+            display: flex;
+        }
+
+        header .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 0 10px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        header .nav-links a:hover {
+            background-color: #ffffff;
+            color: #4a90e2;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .chatbox-container {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            width: 300px; /* Smaller width */
+            height: 400px; /* Smaller height */
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chatbox-header {
+            background-color: #4a90e2;
+            color: #ffffff;
+            padding: 10px;
+            border-radius: 8px 8px 0 0;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .chatbox {
+            padding: 15px;
+            height: calc(100% - 50px);
+            overflow-y: auto;
+            background-color: #f9f9f9;
+            flex-grow: 1;
+            font-size: 14px; /* Smaller font size */
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            max-width: 80%;
+            font-size: 14px; /* Smaller font size */
+        }
+
+        .user-message {
+            background-color: #d1e7dd;
+            align-self: flex-end;
+            text-align: right;
+            border: 1px solid #b8d9b3;
+        }
+
+        .assistant-message {
+            background-color: #e9ecef;
+            align-self: flex-start;
+            text-align: left;
+            border: 1px solid #c0c4c8;
+        }
+
+        .chat-form {
+            display: flex;
+            padding: 10px;
+            background: #ffffff;
+            border-top: 1px solid #ddd;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-right: 10px;
+            font-size: 14px; /* Smaller font size */
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .chat-input:focus {
+            border-color: #4a90e2;
+        }
+
+        .chat-submit {
+            background-color: #4a90e2;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 14px; /* Smaller font size */
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .chat-submit:hover {
+            background-color: #357abd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+               
+            </div>
+            <div class="nav-links">
+                <a href="/Home">Home</a>
+                <a href="./about">About</a>
+                <a href="./contact">Contact</a>
+          
+            </div>
+        </header>
+    </div>
+    
+
+    <div class="chatbox-container">
+        <div class="chatbox-header">Chatbot Interface</div>
+        <div id="chatbox" class="chatbox"></div>
+        <form id="chat-form" class="chat-form">
+            <input type="text" id="user-input" class="chat-input" placeholder="Type your message..." required>
+            <button type="submit" class="chat-submit">Send</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('chat-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const userInput = document.getElementById('user-input').value;
+
+            if (!userInput) return;
+
+            // Display user message
+            const chatbox = document.getElementById('chatbox');
+            const userMessage = document.createElement('div');
+            userMessage.className = 'message user-message';
+            userMessage.textContent = `You: ${userInput}`;
+            chatbox.appendChild(userMessage);
+
+            // Send message to server
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: userInput }),
+            });
+
+            const data = await response.json();
+
+            // Display assistant's reply
+            const assistantMessage = document.createElement('div');
+            assistantMessage.className = 'message assistant-message';
+            assistantMessage.textContent = `Assistant: ${data.reply}`;
+            chatbox.appendChild(assistantMessage);
+
+            // Clear input
+            document.getElementById('user-input').value = '';
+            chatbox.scrollTop = chatbox.scrollHeight;
+        });
+    </script>
+</body>
+</html>
